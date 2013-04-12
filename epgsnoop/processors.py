@@ -519,4 +519,4 @@ class FuzzyMovieMatch(BaseProcessor):
         if matched and (program['end'] - program['start']).total_seconds() / 60 > 80:
             log.debug("Found movie from title: '%s'", program['title'])
             program['category_type'] = 'movie'
-            program['title'] = self.regex.sub('', program['title'])
+            #program['title'] = self.regex.sub('', program['title'])
