@@ -485,3 +485,19 @@ class BBCWorldOnTV1(BaseProcessor):
             log.debug('Inserting program %s', program)
             self.programs.append(program)
 
+
+class TVNZSeriesEpisode(BaseProcessor):
+    regex = re.compile(
+        r's\.?(?P<series>\d+).?\s+ep\.?\s*(?P<episode>\d+)',
+        re.VERBOSE
+    )
+
+    def process(self, program):
+        if program['channel'].xmltvid.startswith('tv1.') or program['channel'].xmltvid.startswith('tv2.'):
+            if not 'series'  in program and not 'episode' in program:
+                matched = self.regex.match(program['description'])
+                if matched:
+                    log.debug("Found series/episode from description in '%s'", program['title'])
+                    program['series'] = int(matched.group("series"))
+                    program['episode'] = int(matched.group("episode"))
+
