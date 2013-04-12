@@ -120,6 +120,7 @@ class MovieTitle(BaseProcessor):
     def process(self, program):
         matched = self.regex.match(program['title'])
         if matched:
+            print "!!!!!!!MOVIE " + program['title']
             log.debug("Found movie from title: '%s'", program['title'])
             program['category_type'] = 'movie'
             program['title'] = self.regex.sub('', program['title'])
@@ -501,3 +502,22 @@ class TVNZSeriesEpisode(BaseProcessor):
                     program['series'] = int(matched.group("series"))
                     program['episode'] = int(matched.group("episode"))
 
+
+class FuzzyMovieMatch(BaseProcessor):
+    regex = re.compile(
+        r'''.*(movie|blockbuster|directed\sby|starring|\sstar\s|stars\s|film\s).*''',
+        re.VERBOSE|re.IGNORECASE
+    )
+    
+    def process(self, program):
+        text = program['title']
+        if 'subtitle' in program:
+            text = text + " " + program['subtitle']
+        if 'description' in program:
+            text = text + " " + program['description']
+
+        matched = self.regex.match(text)
+        if matched and (program['end']- program['start']).total_seconds() / 60 > 80:
+            log.debug("Found movie from title: '%s'", program['title'])
+            program['category_type'] = 'movie'
+            program['title'] = self.regex.sub('', program['title'])
